@@ -5,3 +5,5 @@ export const generateToken = (userId) => {
     expiresIn: "30d",
   });
 };
+
+export default generateToken;
