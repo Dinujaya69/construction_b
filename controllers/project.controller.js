@@ -5,7 +5,7 @@ import errorHandler from "../utils/errorHandler.js";
 // Create a new project
 export const createProject = async (req, res) => {
   try {
-    const { name, description, client, note } = req.body;
+    const { name, description, user, note } = req.body;
 
     let imageUrls = [];
     if (req.files) {
@@ -18,7 +18,7 @@ export const createProject = async (req, res) => {
     const newProject = await Project.create({
       name,
       description,
-      client,
+      user,
       note,
       images: imageUrls,
     });
@@ -34,7 +34,7 @@ export const createProject = async (req, res) => {
 // Get all projects
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find().populate("client");
+    const projects = await Project.find().populate("user");
     res.status(200).json(projects);
   } catch (error) {
     errorHandler({ message: "Failed to fetch projects" }, error, req, res);
@@ -44,7 +44,7 @@ export const getProjects = async (req, res) => {
 // Get a single project
 export const getProject = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id).populate("client");
+    const project = await Project.findById(req.params.id).populate("user");
     if (!project) throw new Error("Project not found");
     res.status(200).json(project);
   } catch (error) {
@@ -55,7 +55,7 @@ export const getProject = async (req, res) => {
 // Update a project
 export const updateProject = async (req, res) => {
   try {
-    const { name, description, client, note } = req.body;
+    const { name, description, user, note } = req.body;
     let project = await Project.findById(req.params.id);
 
     if (!project) throw new Error("Project not found");
@@ -70,7 +70,7 @@ export const updateProject = async (req, res) => {
 
     project = await Project.findByIdAndUpdate(
       req.params.id,
-      { name, description, client, note, images: imageUrls },
+      { name, description, user, note, images: imageUrls },
       { new: true }
     );
 

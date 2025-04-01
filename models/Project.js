@@ -16,10 +16,10 @@ const projectSchema = new Schema(
       type: String,
       required: [true, "Description is required"],
     },
-    client: {
+    user: {
       type: Schema.Types.ObjectId,
-      ref: "Client",
-      required: [true, "Client is required"],
+      ref: "User",
+      required: [true, "User is required"],
     },
     images: {
       type: [String],
