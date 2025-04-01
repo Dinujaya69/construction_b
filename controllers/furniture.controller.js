@@ -104,6 +104,7 @@ export const deleteFurniture = async (req, res) => {
     const furniture = await Furniture.findById(req.params.id);
     if (!furniture) throw new Error("Furniture not found");
 
+    // Delete images from Cloudinary
     for (const image of furniture.images) {
       const publicId = image.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(publicId);
@@ -124,16 +125,19 @@ export const addSubFurniture = async (req, res) => {
     const furniture = await Furniture.findById(req.params.id);
     if (!furniture) throw new Error("Furniture not found");
 
-    furniture.subFurniture.push(req.body);
+    const newSubFurniture = {
+      ...req.body,
+      subFurnitureID: `subFurniture${Date.now()}`, // Auto-generate unique ID
+    };
+
+    furniture.subFurniture.push(newSubFurniture);
     await furniture.save();
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "SubFurniture added successfully",
-        data: furniture,
-      });
+    res.status(200).json({
+      success: true,
+      message: "SubFurniture added successfully",
+      data: furniture,
+    });
   } catch (error) {
     errorHandler({ message: "Failed to add SubFurniture" }, error, req, res);
   }
@@ -146,7 +150,7 @@ export const updateSubFurniture = async (req, res) => {
     if (!furniture) throw new Error("Furniture not found");
 
     const subFurnitureIndex = furniture.subFurniture.findIndex(
-      (item) => item._id.toString() === req.params.subFurnitureId
+      (item) => item.subFurnitureID === req.params.subFurnitureId
     );
     if (subFurnitureIndex === -1) throw new Error("SubFurniture not found");
 
@@ -155,13 +159,11 @@ export const updateSubFurniture = async (req, res) => {
     });
 
     await furniture.save();
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "SubFurniture updated successfully",
-        data: furniture,
-      });
+    res.status(200).json({
+      success: true,
+      message: "SubFurniture updated successfully",
+      data: furniture,
+    });
   } catch (error) {
     errorHandler({ message: "Failed to update SubFurniture" }, error, req, res);
   }
@@ -174,20 +176,18 @@ export const deleteSubFurniture = async (req, res) => {
     if (!furniture) throw new Error("Furniture not found");
 
     const subFurnitureIndex = furniture.subFurniture.findIndex(
-      (item) => item._id.toString() === req.params.subFurnitureId
+      (item) => item.subFurnitureID === req.params.subFurnitureId
     );
     if (subFurnitureIndex === -1) throw new Error("SubFurniture not found");
 
     furniture.subFurniture.splice(subFurnitureIndex, 1);
     await furniture.save();
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "SubFurniture deleted successfully",
-        data: furniture,
-      });
+    res.status(200).json({
+      success: true,
+      message: "SubFurniture deleted successfully",
+      data: furniture,
+    });
   } catch (error) {
     errorHandler({ message: "Failed to delete SubFurniture" }, error, req, res);
   }

@@ -6,6 +6,7 @@ import errorHandler from "./utils/errorHandler.js";
 
 import userRoutes from "./routes/user.Routes.js";
 import projectRoutes from "./routes/project.Routes.js";
+import furnitureRoutes from "./routes/furniture.Routes.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/furniture", furnitureRoutes);
 
 
 app.use(errorHandler);

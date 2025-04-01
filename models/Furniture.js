@@ -33,6 +33,16 @@ const furnitureSchema = new Schema({
   ],
 });
 
+// Auto-generate subFurnitureID before saving
+furnitureSchema.pre("save", function (next) {
+  this.subFurniture.forEach((item, index) => {
+    if (!item.subFurnitureID) {
+      item.subFurnitureID = `subFurniture${Date.now()}${index}`;
+    }
+  });
+  next();
+});
+
 const Furniture = model("Furniture", furnitureSchema);
 
 export default Furniture;
