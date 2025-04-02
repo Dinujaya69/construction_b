@@ -2,7 +2,7 @@ import Furniture from "../models/Furniture.js";
 import cloudinary from "../utils/cloudinary.js";
 import errorHandler from "../utils/errorHandler.js";
 
-// Create a new furniture item
+
 export const createFurniture = async (req, res) => {
   try {
     const { name, description, price, category } = req.body;
@@ -34,7 +34,7 @@ export const createFurniture = async (req, res) => {
   }
 };
 
-// Get all furniture items
+
 export const getAllFurniture = async (req, res) => {
   try {
     const furniture = await Furniture.find();
@@ -53,7 +53,7 @@ export const getAllFurniture = async (req, res) => {
   }
 };
 
-// Get a single furniture item by ID
+
 export const getFurnitureById = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.id);
@@ -66,7 +66,7 @@ export const getFurnitureById = async (req, res) => {
   }
 };
 
-// Update a furniture item
+
 export const updateFurniture = async (req, res) => {
   try {
     const { name, description, price, category } = req.body;
@@ -98,13 +98,11 @@ export const updateFurniture = async (req, res) => {
   }
 };
 
-// Delete a furniture item
 export const deleteFurniture = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.id);
     if (!furniture) throw new Error("Furniture not found");
 
-    // Delete images from Cloudinary
     for (const image of furniture.images) {
       const publicId = image.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(publicId);
@@ -119,7 +117,6 @@ export const deleteFurniture = async (req, res) => {
   }
 };
 
-// Add a subFurniture item to a furniture item
 export const addSubFurniture = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.id);
@@ -127,7 +124,7 @@ export const addSubFurniture = async (req, res) => {
 
     const newSubFurniture = {
       ...req.body,
-      subFurnitureID: `subFurniture${Date.now()}`, // Auto-generate unique ID
+      subFurnitureID: `subFurniture${Date.now()}`, 
     };
 
     furniture.subFurniture.push(newSubFurniture);
@@ -143,7 +140,7 @@ export const addSubFurniture = async (req, res) => {
   }
 };
 
-// Update a subFurniture item
+
 export const updateSubFurniture = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.furnitureId);
@@ -169,7 +166,6 @@ export const updateSubFurniture = async (req, res) => {
   }
 };
 
-// Delete a subFurniture item
 export const deleteSubFurniture = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.furnitureId);
