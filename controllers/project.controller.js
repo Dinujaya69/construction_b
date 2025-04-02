@@ -2,7 +2,7 @@ import Project from "../models/Project.js";
 import cloudinary from "../utils/cloudinary.js";
 import errorHandler from "../utils/errorHandler.js";
 
-// Create a new project
+
 export const createProject = async (req, res) => {
   try {
     const { name, description, user, note } = req.body;
@@ -31,7 +31,7 @@ export const createProject = async (req, res) => {
   }
 };
 
-// Get all projects
+
 export const getProjects = async (req, res) => {
   try {
     const projects = await Project.find().populate("user");
@@ -41,7 +41,6 @@ export const getProjects = async (req, res) => {
   }
 };
 
-// Get a single project
 export const getProject = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id).populate("user");
@@ -52,7 +51,6 @@ export const getProject = async (req, res) => {
   }
 };
 
-// Update a project
 export const updateProject = async (req, res) => {
   try {
     const { name, description, user, note } = req.body;
@@ -80,7 +78,6 @@ export const updateProject = async (req, res) => {
   }
 };
 
-// Delete a project
 export const deleteProject = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);

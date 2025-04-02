@@ -12,10 +12,9 @@ dotenv.config();
 
 const app = express();
 
-// Connect to DB
 connectDB();
 
-// Middlewares
+
 app.use(cors());
 app.use(express.json());
 

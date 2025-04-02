@@ -31,7 +31,6 @@ export const registerUser = async (req, res) => {
     }
   };
 
-  //get user by id
   export const getUserById = async (req, res) => {
     try {
       const user = await User.findById(req.params.id);
@@ -41,7 +40,6 @@ export const registerUser = async (req, res) => {
     }
   };
 
-  //update user by id
   export const updateUserById = async (req, res) => {
     try {
       const user = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -53,7 +51,6 @@ export const registerUser = async (req, res) => {
     }
   };
 
-  //delete user by id
   export const deleteUserById = async (req, res) => {
     try {
       const user = await User.findByIdAndDelete(req.params.id);
@@ -63,7 +60,6 @@ export const registerUser = async (req, res) => {
     }
   };
 
-  //get all users
   export const getAllUsers = async (req, res) => {
     try {
       const users = await User.find();
