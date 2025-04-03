@@ -1,37 +1,31 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import connectDB from "./config/dbConfig.js";
-import errorHandler from "./utils/errorHandler.js";
-
-import userRoutes from "./routes/user.Routes.js";
-import projectRoutes from "./routes/project.Routes.js";
-import furnitureRoutes from "./routes/furniture.Routes.js";
-
-dotenv.config();
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
-connectDB();
 
-
-app.use(cors());
-app.use(express.json());
-
-// Routes
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URL, {
+  dbName: process.env.MONG,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-app.use("/api/users", userRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/furniture", furnitureRoutes);
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log("MongoDB connection successful!");
+});
 
 
-app.use(errorHandler);
 
-// Start the server
-const PORT = process.env.PORT;
+
+
+// Server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is up and running on port: ${PORT}`);
 });
