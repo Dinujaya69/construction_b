@@ -2,25 +2,12 @@ import Furniture from "../models/Furniture.js";
 import cloudinary from "../utils/cloudinary.js";
 import errorHandler from "../utils/errorHandler.js";
 
-
 export const createFurniture = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
-
-    let imageUrls = [];
-    if (req.files) {
-      for (const file of req.files) {
-        const result = await cloudinary.uploader.upload(file.path);
-        imageUrls.push(result.secure_url);
-      }
-    }
+    const { name } = req.body;
 
     const newFurniture = new Furniture({
       name,
-      description,
-      price,
-      category,
-      images: imageUrls,
     });
     const savedFurniture = await newFurniture.save();
 
@@ -33,7 +20,6 @@ export const createFurniture = async (req, res) => {
     errorHandler({ message: "Furniture creation failed" }, error, req, res);
   }
 };
-
 
 export const getAllFurniture = async (req, res) => {
   try {
@@ -53,7 +39,6 @@ export const getAllFurniture = async (req, res) => {
   }
 };
 
-
 export const getFurnitureById = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.id);
@@ -66,25 +51,16 @@ export const getFurnitureById = async (req, res) => {
   }
 };
 
-
 export const updateFurniture = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
+    const { name } = req.body;
     let furniture = await Furniture.findById(req.params.id);
 
     if (!furniture) throw new Error("Furniture not found");
 
-    let imageUrls = furniture.images;
-    if (req.files) {
-      for (const file of req.files) {
-        const result = await cloudinary.uploader.upload(file.path);
-        imageUrls.push(result.secure_url);
-      }
-    }
-
     furniture = await Furniture.findByIdAndUpdate(
       req.params.id,
-      { name, description, price, category, images: imageUrls },
+      { name },
       { new: true }
     );
 
@@ -103,9 +79,15 @@ export const deleteFurniture = async (req, res) => {
     const furniture = await Furniture.findById(req.params.id);
     if (!furniture) throw new Error("Furniture not found");
 
-    for (const image of furniture.images) {
-      const publicId = image.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(publicId);
+    // Delete all subFurniture images first
+    for (const subItem of furniture.subFurniture) {
+      if (subItem.subFurnitureImage) {
+        const publicId = subItem.subFurnitureImage
+          .split("/")
+          .pop()
+          .split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
     }
 
     await furniture.deleteOne();
@@ -122,9 +104,21 @@ export const addSubFurniture = async (req, res) => {
     const furniture = await Furniture.findById(req.params.id);
     if (!furniture) throw new Error("Furniture not found");
 
+    const { subFurnitureName, subFurniturePrice, subFurnitureQuantity } =
+      req.body;
+
+    if (!req.file) {
+      throw new Error("SubFurniture image is required");
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path);
+
     const newSubFurniture = {
-      ...req.body,
-      subFurnitureID: `subFurniture${Date.now()}`, 
+      subFurnitureName,
+      subFurniturePrice,
+      subFurnitureQuantity,
+      subFurnitureID: `subFurniture${Date.now()}`,
+      subFurnitureImage: result.secure_url,
     };
 
     furniture.subFurniture.push(newSubFurniture);
@@ -140,7 +134,6 @@ export const addSubFurniture = async (req, res) => {
   }
 };
 
-
 export const updateSubFurniture = async (req, res) => {
   try {
     const furniture = await Furniture.findById(req.params.furnitureId);
@@ -151,9 +144,38 @@ export const updateSubFurniture = async (req, res) => {
     );
     if (subFurnitureIndex === -1) throw new Error("SubFurniture not found");
 
-    Object.keys(req.body).forEach((key) => {
-      furniture.subFurniture[subFurnitureIndex][key] = req.body[key];
-    });
+    // Update basic fields
+    if (req.body.subFurnitureName) {
+      furniture.subFurniture[subFurnitureIndex].subFurnitureName =
+        req.body.subFurnitureName;
+    }
+    if (req.body.subFurniturePrice) {
+      furniture.subFurniture[subFurnitureIndex].subFurniturePrice =
+        req.body.subFurniturePrice;
+    }
+    if (req.body.subFurnitureQuantity) {
+      furniture.subFurniture[subFurnitureIndex].subFurnitureQuantity =
+        req.body.subFurnitureQuantity;
+    }
+
+    // Handle image upload if provided
+    if (req.file) {
+      // Delete old image if exists
+      if (furniture.subFurniture[subFurnitureIndex].subFurnitureImage) {
+        const publicId = furniture.subFurniture[
+          subFurnitureIndex
+        ].subFurnitureImage
+          .split("/")
+          .pop()
+          .split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      // Upload new image
+      const result = await cloudinary.uploader.upload(req.file.path);
+      furniture.subFurniture[subFurnitureIndex].subFurnitureImage =
+        result.secure_url;
+    }
 
     await furniture.save();
     res.status(200).json({
@@ -175,6 +197,17 @@ export const deleteSubFurniture = async (req, res) => {
       (item) => item.subFurnitureID === req.params.subFurnitureId
     );
     if (subFurnitureIndex === -1) throw new Error("SubFurniture not found");
+
+    // Delete the subFurniture image from cloudinary
+    if (furniture.subFurniture[subFurnitureIndex].subFurnitureImage) {
+      const publicId = furniture.subFurniture[
+        subFurnitureIndex
+      ].subFurnitureImage
+        .split("/")
+        .pop()
+        .split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
+    }
 
     furniture.subFurniture.splice(subFurnitureIndex, 1);
     await furniture.save();
