@@ -16,6 +16,10 @@ const projectSchema = new Schema(
       type: String,
       required: [true, "Description is required"],
     },
+    duration: {
+      type: String,
+      required: [true, "Duration is required"],
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",

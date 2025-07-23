@@ -4,7 +4,7 @@ import errorHandler from "../utils/errorHandler.js";
 
 export const createProject = async (req, res) => {
   try {
-    const { name, description, note } = req.body;
+    const { name, description,duration, note } = req.body;
 
     let imageUrls = [];
     if (req.files) {
@@ -18,6 +18,7 @@ export const createProject = async (req, res) => {
       name,
       description,
       note,
+      duration,
       user: req.user._id,
       images: imageUrls,
     });
@@ -51,7 +52,7 @@ export const getProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
   try {
-    const { name, description, note } = req.body;
+    const { name, description,duration, note } = req.body;
     let project = await Project.findById(req.params.id);
 
     if (!project) throw new Error("Project not found");
@@ -74,7 +75,7 @@ export const updateProject = async (req, res) => {
 
     project = await Project.findByIdAndUpdate(
       req.params.id,
-      { name, description, note, images: imageUrls },
+      { name, description, note,duration, images: imageUrls },
       { new: true }
     );
 
